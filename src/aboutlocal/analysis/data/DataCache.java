@@ -8,8 +8,6 @@ import aboutlocal.analysis.data.dtos.NewsDTO;
 import aboutlocal.analysis.data.dtos.QuoteDTO;
 import aboutlocal.analysis.data.dtos.TweetDTO;
 
-import com.aboutlocal.hypercube.util.data.BigMultiMap;
-
 
 public class DataCache {
     
