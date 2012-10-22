@@ -1,0 +1,7 @@
+ Straße
+ Str.
+str.
+enstr.
+ Allee
+ Gasse
+engasse
