@@ -9,7 +9,7 @@ public class P {
     
     private final static String SEP = System.getProperty("file.separator");
     
-    public static final String BASE = "/home/jossi/thesis/";
+    public static final String BASE = "C:/thesis/".replace("/", SEP);
     
     public static class QUOTES{
 
@@ -30,6 +30,18 @@ public class P {
 
         public static final String ROOT = "resources"+SEP;
         public static final String COMPANYLIST = ROOT+"companylist.csv";
+        
+        public static class CORPORA{
+
+            public static final String ROOT = RESOURCES.ROOT+"corpora"+SEP;
+            public static final String REVIEW_POLARITY = ROOT+"review_polarity";
+            public static final String ROTTEN_IMDB = ROOT+"rotten_imdb";
+        }
+        
+        public static class MODELS{
+
+            public static final String ROOT = RESOURCES.ROOT+"models"+SEP;
+        }
         
     }
 
