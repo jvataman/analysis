@@ -39,9 +39,9 @@ public class DataCacheCreator {
     }
 
     public DataCache fillCache() {
-        generateCompanyNameMapping();
-        generateQuoteMapping();
-         generateTweetMapping();
+//        generateCompanyNameMapping();
+//        generateQuoteMapping();
+        generateTweetMapping();
 
         return DataCache.instance();
     }
@@ -125,8 +125,14 @@ public class DataCacheCreator {
             public void parseLine(String line) {
                 inc.increment();
                 TweetDTO tweet = gson.fromJson(line, TweetDTO.class);
-                Long key = tweet.created_at_timestamp;
-                self.putIntoArrMap(key, tweet, DataCache.instance().timeToTweet);
+                Long tweetTimeStamp = tweet.created_at_timestamp;
+                self.putIntoListMap(tweetTimeStamp, tweet, DataCache.instance().timeToTweet);
+                try{
+                    //tweet urls
+                }catch(Exception e){
+                    
+                }
+                self.putIntoListMap(tweetTimeStamp, tweet, DataCache.instance().timeToTweet);
             }
         });
 

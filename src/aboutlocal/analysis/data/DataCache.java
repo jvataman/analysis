@@ -11,8 +11,9 @@ import aboutlocal.analysis.data.dtos.TweetDTO;
 
 public class DataCache {
     
-    public final TreeMap<Long, TweetDTO[]> timeToTweet = new TreeMap<>();
-    public final HashMap<String, TweetDTO> companyCodeToTweet = new HashMap<>();
+    public final TreeMap<Long, LinkedList<TweetDTO>> timeToTweet = new TreeMap<>();
+    public final HashMap<String, LinkedList<TweetDTO>> companyCodeToTweet = new HashMap<>();
+    public final HashMap<String, LinkedList<TweetDTO>> resolvedUrlToTweet = new HashMap<>();
     
     public final TreeMap<Long, QuoteDTO[]> timeToQuote = new TreeMap<>();
     public final HashMap<String, LinkedList<QuoteDTO>> companyCodeToQuote = new HashMap<>();
