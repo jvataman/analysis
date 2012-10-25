@@ -63,6 +63,8 @@ public class ContentTweetWorker extends Worker<TweetDTO>{
         public void executeJob(TweetDTO tweet) {
             String preprocessedText = p.tweetText(tweet.text);
             String contentVector = t.getContentVector(preprocessedText);
+            
+            tweet.contentVector = contentVector;
 
             synchronized (cvLock) {
                 MapUtils.putIntoListMap(contentVector, tweet, DataCache.instance().contentVectorToTweet);

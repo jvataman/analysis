@@ -2,7 +2,10 @@ package aboutlocal.analysis.data.dtos;
 
 import java.util.ArrayList;
 
-public class TweetDTO {
+public class TweetDTO{
+    
+    //generated values
+    public transient String contentVector;
     
     public String query; //addition
     

@@ -139,7 +139,7 @@ public class DataCacheCreator {
         System.out.println("generating {time,url,hashtag,contentVector} -> tweet mapping");
         final CountIterator inc = IoUtils.newCountIterator("reading tweets:", 100000, 3300000);
         // XXX max filter
-        final int[] max = { 10000 }, current = { 0 };
+        final int[] max = { 1000 }, current = { 0 };
         final HashSet<String> expandedUrlsDisjunct = new HashSet<>();
         final LinkedList<String> expandedUrls = new LinkedList<>();
         final HashSet<String> hashTagsDisjunct = new HashSet<>();
@@ -171,6 +171,9 @@ public class DataCacheCreator {
                     code = MapUtils.getMaxIntersectedValueFromMap(
                             Arrays.asList(p.companyName(p.query(tweet.query)).split(" ")),
                             DataCache.instance().companyNameTokenToCompanyCode);
+                
+                if(code!=null)
+                    MapUtils.putIntoListMap(code, tweet, DataCache.instance().companyCodeToTweet);
 
                 // String out = "";
                 // if (code == null) {
@@ -203,6 +206,8 @@ public class DataCacheCreator {
                 // CONTENT
                 String preprocessedText = p.tweetText(tweet.text);
                 String contentVector = t.getContentVector(preprocessedText);
+                
+                tweet.contentVector = contentVector;
 
                 MapUtils.putIntoListMap(contentVector, tweet, DataCache.instance().contentVectorToTweet);
                 

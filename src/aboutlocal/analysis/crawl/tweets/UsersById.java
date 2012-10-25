@@ -3,7 +3,10 @@ package aboutlocal.analysis.crawl.tweets;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.json.JSONException;
 
@@ -24,45 +27,36 @@ import com.aboutlocal.hypercube.system.akka.Container;
 import com.aboutlocal.hypercube.util.concurrent.CountUpDownLatch;
 import com.aboutlocal.hypercube.util.data.IoUtils;
 import com.aboutlocal.hypercube.util.data.IoUtils.CountIterator;
+import com.aboutlocal.hypercube.util.data.IoUtils.LineParser;
 import com.aboutlocal.hypercube.util.data.RandomUtils;
 import com.aboutlocal.proxy.ProxySelector;
+import com.google.gson.Gson;
 
-public class TweetsById {
+public class UsersById {
     
-    private static final BufferedWriter buffer = IoUtils.getBufferedWriter(P.RESOURCES.CORPORA.TWITTER_TAGGED.ROOT + "tweets2");
+    private static final BufferedWriter buffer = IoUtils.getBufferedWriter(P.TWEETS.USERS + "users");
 
-    private static final String API_URL = "http://api.twitter.com/1/statuses/show.json?id=[id]&include_entities=true";
+    private static final String API_URL = "https://api.twitter.com/1/users/show.json?user_id=[id]&include_entities=true";
     private static SimpleHttpService service = SimpleHttpService.instance();
-    private static final CountUpDownLatch latch = new CountUpDownLatch();
-    private final static CountIterator iterator = IoUtils.newCountIterator("pulled tweets: ", 10, 5514);
+    private static final CountUpDownLatch latch = new CountUpDownLatch(0);
+    private final static CountIterator iterator = IoUtils.newCountIterator("pulled users: ", 10, 60000);
+    private final static CountIterator readIterator = IoUtils.newCountIterator("read tweets: ", 100000);
     
-    private final static Container<List<Proxy>> container = new Container<>(null);
-
+    private static final Gson gson = new Gson();
+    
     public static void main(String[] args) throws JSONException, IOException {
-        CsvDecoder decoder = new CsvDecoder(",", "\"", "\"\"");
-        ArrayList<SentTagDTO> list = null;
-        try {
-            CsvDocument csv = decoder.readCsv(P.RESOURCES.CORPORA.TWITTER_TAGGED.ROOT + "twitterCorpus.csv");
-            list = csv.toGenericObjects(SentTagDTO.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<TweetDTO> knownTweets = (ArrayList<TweetDTO>) new DTOHandler().deserializeGsonList(TweetDTO.class, P.RESOURCES.CORPORA.TWITTER_TAGGED.ROOT + "tweets");
-        ArrayList<String> knownIds = new ArrayList<>();
-        for(TweetDTO knownTweet:knownTweets)
-            knownIds.add(knownTweet.id_str);
-            
-        latch.setCount(list.size());
         
-        int skipCount = 0;
-        for (SentTagDTO dto : list){
-            if(knownIds.contains(dto.tweetId)){
-                System.out.println(++skipCount+" skipping "+dto.tweetId);
-                continue;
+        final TreeMap<String,Integer> userIdCounts = new TreeMap<>();
+        IoUtils.readDocument(P.TWEETS.USERS+"topUsersSorted", new LineParser() {
+            
+            @Override
+            protected void parseLine(String line) {
+                String url = API_URL.replace("[id]", line);
+                latch.countUp();
+                crawl(url);
             }
-            crawl(API_URL.replace("[id]",dto.tweetId));
-        }
+            
+        });
         
         try {
             latch.await();
@@ -77,11 +71,11 @@ public class TweetsById {
     }
     
     private final static void crawl(final String url){
-        service.execute(new Request(url).proxy(ProxySelector.getOwnProxy())).onComplete(new OnComplete<HttpResponse<String>>(){
+        service.execute(new Request(url).proxy(ProxySelector.instance().getGaussianProxy())).onComplete(new OnComplete<HttpResponse<String>>(){
 
             @Override
             public void onComplete(Throwable err, HttpResponse<String> resp) {
-                if(err!=null || resp == null || resp.getContent() == null || resp.getContent().equals("") || resp.getContent().contains("error\":\"Rate limit exceeded.")){
+                if(err!=null || resp == null || resp.getContent() == null || resp.getContent().equals("") || !resp.getContent().startsWith("{") ||resp.getContent().contains("error\":\"Rate limit exceeded.")){
                     crawl(url);
                 }else{
                     String content = resp.getContent();
@@ -101,14 +95,4 @@ public class TweetsById {
         });
     }
     
-    private static final Proxy randomProxy(){
-        if(container.value()==null)
-            try {
-                container.value(new DTOHandler().deserializeGsonList(Proxy.class, "proxies.gsonlist"));
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-        return RandomUtils.getRandom(container.value());
-    }
-
 }

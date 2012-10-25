@@ -18,6 +18,9 @@ public class SearchTermTweetWorker extends Worker<TweetDTO>{
             code = MapUtils.getMaxIntersectedValueFromMap(
                     Arrays.asList(p.companyName(p.query(tweet.query)).split(" ")),
                     DataCache.instance().companyNameTokenToCompanyCode);
+        
+        if(code!=null)
+            MapUtils.putIntoListMap(code, tweet, DataCache.instance().companyCodeToTweet);
     }
 
 }

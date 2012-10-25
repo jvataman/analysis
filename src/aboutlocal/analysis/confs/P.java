@@ -24,6 +24,7 @@ public class P {
 
         public static final String ROOT = BASE+"tweets"+SEP;
         public static final String DISJUNCT = ROOT+SEP+"disjunct"+SEP;
+        public static final String USERS = ROOT+SEP+"users"+SEP;
         
     }
     
