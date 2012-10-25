@@ -26,7 +26,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 public class Tokenizer {
 
     private static MaxentTagger tagger = null;
-    private final static porterStemmer stemmer = new porterStemmer();
+    private final porterStemmer stemmer = new porterStemmer();
     private final static StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_36);
     
     private final static Pattern nounPat = Pattern.compile("(([^_\\s]+)_(N(N|P)(S|P)?))");
@@ -42,7 +42,9 @@ public class Tokenizer {
     private static void init() {
         if (tagger == null)
             try {
+                System.out.println("initalizing maxenttagger...");
                 tagger = new MaxentTagger(P.RESOURCES.MODELS.ROOT + "english-left3words-distsim.tagger");
+                System.out.println("init maxenttagger done");
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
