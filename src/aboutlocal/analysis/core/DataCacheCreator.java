@@ -97,8 +97,8 @@ public class DataCacheCreator {
                     QuoteDTO quote = gson.fromJson(line, QuoteDTO.class);
                     Long key = quote.getTimeStamp();
 
-                    // self.putIntoArrMap(key, quote,
-                    // DataCache.instance().timeToQuote);
+                    MapUtils.putIntoArrMap(key, quote, DataCache.instance().timeToQuote);
+                    
                     if (code != null)
                         MapUtils.putIntoListMap(code[0], quote, DataCache.instance().companyCodeToQuote);
                     else
