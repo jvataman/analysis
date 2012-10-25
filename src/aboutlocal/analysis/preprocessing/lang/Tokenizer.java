@@ -1,5 +1,8 @@
 package aboutlocal.analysis.preprocessing.lang;
 
+import static com.aboutlocal.hypercube.logging.SuperLogger.debug;
+import static com.aboutlocal.hypercube.logging.SuperLogger.setClassLogLevel;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -12,6 +15,10 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Version;
 import org.tartarus.snowball.ext.porterStemmer;
+
+import scala.actors.threadpool.Arrays;
+
+import com.aboutlocal.hypercube.logging.SuperLogger.LogLevel;
 
 import aboutlocal.analysis.confs.P;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
@@ -26,8 +33,10 @@ public class Tokenizer {
     
     public static void main(String[] args) {
         String s = "Peter is jumping over the lazy fox.";
-        s = "Articulate launches Storyline authoring tool, outputs training modules to iPad and HTML 5: Learning profess";
-        tag(s);
+        s = "Articulate launches Storyline authoring tool, outputs training modules to iPad and HTML 5: Learning professionally";
+        setClassLogLevel(Tokenizer.class, LogLevel.DEBUG);
+        
+        new Tokenizer().getContentVector(s);
     }
 
     private static void init() {
@@ -39,14 +48,46 @@ public class Tokenizer {
             }
     }
 
-    public static void tag(String text) {
+    @SuppressWarnings("unchecked")
+    public String getContentVector(String preprocessedText){
+        StringBuilder contentVector = new StringBuilder();
+        
+        debug("input:                 "+preprocessedText);
+        
         init();
-        System.out.println(text);
-        System.out.println(tagger.tagString(text));
-        Matcher mat = nounPat.matcher(tagger.tagString(text));
+        String tagged = tagger.tagString(preprocessedText);
+        
+        debug("tagged:                "+tagged);
+        
+        Matcher mat = nounPat.matcher(tagged);
         String nouns = "";
         while(mat.find())
             nouns += mat.group(2)+" ";
+        
+        debug("nouns:                 "+nouns);
+        
+        TreeSet<String> tokens = new TreeSet<>();
+        for(String noun: new ArrayList<String>(Arrays.asList(nouns.trim().split(" ")))){
+            stemmer.setCurrent(noun);
+            stemmer.stem();
+            tokens.add(stemmer.getCurrent().toLowerCase());
+        }
+        
+        for(String t:tokens)
+            contentVector.append(t).append(" ");
+        
+        debug("tokenized and stemmed: "+contentVector);
+        
+        return contentVector.toString().trim();
+    }
+    
+    /**
+     * not used, because StanfordPOS already tokenizes, stemming done separately
+     * @return
+     */
+    @Deprecated
+    private String tokenizeAndStem(String nouns){
+        StringBuilder contentVector = new StringBuilder();
         
         TokenStream stream =  analyzer.tokenStream("sampleField", new StringReader(nouns.trim()));
         CharTermAttribute charTermAttribute = stream.addAttribute(CharTermAttribute.class);
@@ -62,14 +103,10 @@ public class Tokenizer {
             e.printStackTrace();
         }
         
-        System.out.println(tokens);
-    }
-    
-    public String getContentVector(String text){
-        String contentVector = "";
+        for(String t:tokens)
+            contentVector.append(t).append(" ");
         
-        
-        return contentVector;
+        return contentVector.toString();
     }
 
 }

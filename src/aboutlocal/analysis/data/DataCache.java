@@ -16,12 +16,16 @@ public class DataCache {
     public final HashMap<String, LinkedList<TweetDTO>> resolvedUrlToTweet = new HashMap<>();
     public final HashMap<String, LinkedList<TweetDTO>> hashTagToTweet = new HashMap<>();
     public final HashMap<String, LinkedList<TweetDTO>> contentVectorToTweet = new HashMap<>();
+    public final HashMap<String, LinkedList<TweetDTO>> contentVectorTokenToTweet = new HashMap<>();
+    public final HashMap<String, LinkedList<TweetDTO>> searchTermToTweet = new HashMap<>();
+    
     
     public final TreeMap<Long, QuoteDTO[]> timeToQuote = new TreeMap<>();
     public final HashMap<String, LinkedList<QuoteDTO>> companyCodeToQuote = new HashMap<>();
     
-    public final TreeMap<Long, NewsDTO[]> timeToNews = new TreeMap<>();
-    public final TreeMap<Long, NewsDTO[]> contentVectorToNews = new TreeMap<>();
+    public final TreeMap<Long, LinkedList<NewsDTO>> timeToNews = new TreeMap<>();
+    public final TreeMap<String, LinkedList<NewsDTO>> contentVectorToNews = new TreeMap<>();
+    public final TreeMap<String, LinkedList<NewsDTO>> contentVectorTokenToNews = new TreeMap<>();
     
     public final HashMap<String, String[]> companyNameTokenToCompanyCode = new HashMap<>();
     public final HashMap<String, String> companyNameToCompanyCode = new HashMap<>();

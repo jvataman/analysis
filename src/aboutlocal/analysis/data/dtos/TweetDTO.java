@@ -56,4 +56,9 @@ public class TweetDTO {
         public ArrayList<Integer> indices;
     }
     
+    @Override
+    public String toString() {
+        return created_at + ": " + text.replace("\n", "");
+    }
+    
 }

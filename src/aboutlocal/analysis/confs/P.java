@@ -26,6 +26,12 @@ public class P {
         
     }
     
+    public static class NEWS{
+
+        public static final String ROOT = BASE+"news"+SEP;
+        
+    }
+    
     public static class RESOURCES{
 
         public static final String ROOT = "resources"+SEP;
@@ -36,6 +42,13 @@ public class P {
             public static final String ROOT = RESOURCES.ROOT+"corpora"+SEP;
             public static final String REVIEW_POLARITY = ROOT+"review_polarity";
             public static final String ROTTEN_IMDB = ROOT+"rotten_imdb";
+            
+            public static class TWITTER_TAGGED{
+
+                public static final String ROOT = RESOURCES.CORPORA.ROOT+"twitterTagged"+SEP;
+                
+                
+            }
         }
         
         public static class MODELS{
