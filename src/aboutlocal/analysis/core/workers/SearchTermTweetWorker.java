@@ -21,6 +21,10 @@ public class SearchTermTweetWorker extends Worker<TweetDTO>{
         
         if(code!=null)
             MapUtils.putIntoListMap(code, tweet, DataCache.instance().companyCodeToTweet);
+        else {
+            Integer prevNum = DataCache.instance().unrecognizedSearchTerms.get(p.query(tweet.query));
+            DataCache.instance().unrecognizedSearchTerms.put(p.query(tweet.query),prevNum==null?1:prevNum+1);
+        }
     }
 
 }

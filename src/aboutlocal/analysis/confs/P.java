@@ -19,6 +19,12 @@ public class P {
         
     }
     
+    public static class FEATURE_VECTORS{
+
+        public static final String ROOT = BASE+"feature_vectors"+SEP;
+        
+    }
+    
     public static class TWEETS{
 
         public static final String ROOT = BASE+"tweets"+SEP;
@@ -30,6 +36,12 @@ public class P {
     public static class NEWS{
 
         public static final String ROOT = BASE+"news"+SEP;
+        
+    }
+    
+    public static class TICKS{
+
+        public static final String ROOT = BASE+"ticks"+SEP;
         
     }
     

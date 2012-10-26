@@ -10,10 +10,18 @@ import com.google.gson.Gson;
 public class Analyzer {
 
     public static PolarityBasic polarity = null;
+    private final TextPreprocessor p = new TextPreprocessor();
 
-    public enum Mood {
-        POS, NEG
-    };
+    public static enum Mood{
+        NEGATIVE(-1),NEUTRAL(0),IRRELEVANT(0),POSITIVE(1);
+        int level;
+        private Mood(int level){
+            this.level=level;
+        }
+        public int getRank(){
+            return level;
+        }
+    }
 
     private static final Gson gson = new Gson();
 
@@ -59,12 +67,23 @@ public class Analyzer {
         }
     }
 
-    private Mood classifyMood(String text) {
+    /**
+     * also preprocesses the text using {@link #p}
+     * @param tweetText
+     * @return
+     */
+    public Mood classifyMood(String tweetText) {
         init();
-        JointClassification klass = polarity.mClassifier.classify(text);
+        tweetText = p.tweetText(tweetText);
+        JointClassification klass = polarity.mClassifier.classify(tweetText);
 
-        if (klass.bestCategory().equals("pos"))
-            return Mood.POS;
-        return Mood.NEG;
+        if (klass.bestCategory().equals("negative"))
+            return Mood.NEGATIVE;
+        if (klass.bestCategory().equals("positive"))
+            return Mood.POSITIVE;
+        if (klass.bestCategory().equals("irrelevant"))
+            return Mood.IRRELEVANT;
+        
+        return Mood.NEUTRAL;
     }
 }

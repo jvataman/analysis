@@ -24,7 +24,8 @@ public class TextPreprocessor {
         normalized = normalized.replaceAll("( s)\\b", "s");
         normalized = normalized.replaceAll("\\b(u s)\\b", "us");
         normalized = normalized.replaceAll("(.*\\w+)com(\\b.*)", "$1$2");
-        normalized = normalized.replaceAll("(.*\\d)\\s+(\\d.*)", "$1$2");
+        normalized = normalized.replaceAll("\\d", "");
+//        normalized = normalized.replaceAll("(.*\\d)\\s+(\\d.*)", "$1$2");
         normalized = normalized.replaceAll("^(the )", "");
 
         normalized = normalized.replaceAll("\\s{2,}", " ").trim();

@@ -12,6 +12,8 @@ import com.aboutlocal.hypercube.util.data.Tuple;
  */
 public class Tick {
     
+    public String companyCode = "ALL_COMPANIES";
+    
     public final Tuple<Long, Long> timeFrame = new Tuple<>();
     
     public final ArrayList<TweetDTO> tweets = new ArrayList<>();
