@@ -17,6 +17,7 @@ import aboutlocal.analysis.confs.C;
 import aboutlocal.analysis.confs.P;
 import aboutlocal.analysis.core.DataCacheCreatorPara;
 import aboutlocal.analysis.core.TickFactory;
+import aboutlocal.analysis.core.util.MapUtils;
 import aboutlocal.analysis.core.util.MathUtils;
 import aboutlocal.analysis.data.DataCache;
 import aboutlocal.analysis.data.dtos.FeatureVectorDTO;
@@ -188,12 +189,16 @@ public class FeatureVectorCreator {
             System.out.println("merging: t: " + DataCache.instance().timeToTweet.size() + " q: "
                     + DataCache.instance().timeToQuote.size());
             
+            SortedMap<Long, LinkedList<TweetDTO>> tweetsForCodeMap = new TreeMap<>();
+            for(TweetDTO tweet:tweetsForCode)
+                MapUtils.putIntoListMap(tweet.created_at_timestamp, tweet, tweetsForCodeMap);
+            
 //            BufferedWriter writer = IoUtils.getBufferedWriter(PATH+companyCode);
             for (Tick tick : tickFactory) {
                 
                 tick.companyCode = companyCode;
                 
-                SortedMap<Long, LinkedList<TweetDTO>> subMapTweets = DataCache.instance().timeToTweet.subMap(
+                SortedMap<Long, LinkedList<TweetDTO>> subMapTweets = tweetsForCodeMap.subMap(
                         tick.timeFrame.getX(), tick.timeFrame.getY());
                 SortedMap<Long, QuoteDTO[]> subMapQuotes = DataCache.instance().timeToQuote.subMap(tick.timeFrame.getX(), tick.timeFrame.getY() + C.IMPACT_DELTA_MILLIS);
                 if (subMapTweets.size() > 0 && subMapQuotes.size() > 0) {
