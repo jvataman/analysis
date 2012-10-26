@@ -9,7 +9,8 @@ public class P {
     
     private final static String SEP = System.getProperty("file.separator");
     
-    public static final String BASE = "C:/thesis/".replace("/", SEP);
+    public static final String BASE = "/home/jossi/thesis/".replace("/", SEP);
+//    public static final String BASE = "C:/thesis/".replace("/", SEP);
     
     public static class QUOTES{
 
