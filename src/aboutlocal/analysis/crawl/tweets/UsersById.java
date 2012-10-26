@@ -13,6 +13,7 @@ import org.json.JSONException;
 import aboutlocal.analysis.confs.P;
 import aboutlocal.analysis.data.dtos.SentTagDTO;
 import aboutlocal.analysis.data.dtos.TweetDTO;
+import aboutlocal.analysis.data.dtos.UserDTO;
 import akka.dispatch.OnComplete;
 
 import com.aboutlocal.crawlers.AbstractCrawler;
@@ -34,9 +35,9 @@ import com.google.gson.Gson;
 
 public class UsersById {
     
-    private static final BufferedWriter buffer = IoUtils.getBufferedWriter(P.TWEETS.USERS + "users");
+    private static final BufferedWriter buffer = IoUtils.getBufferedWriter(P.TWEETS.USERS + "users2");
 
-    private static final String API_URL = "https://api.twitter.com/1/users/show.json?user_id=[id]&include_entities=true";
+    private static final String API_URL = "http://api.twitter.com/1/users/show.json?user_id=[id]&include_entities=true";
     private static SimpleHttpService service = SimpleHttpService.instance();
     private static final CountUpDownLatch latch = new CountUpDownLatch(0);
     private final static CountIterator iterator = IoUtils.newCountIterator("pulled users: ", 10, 60000);
@@ -45,12 +46,18 @@ public class UsersById {
     private static final Gson gson = new Gson();
     
     public static void main(String[] args) throws JSONException, IOException {
+        final HashSet<String> knownIds = new HashSet<>();
+        for(UserDTO user:new DTOHandler().deserializeGsonList(UserDTO.class, P.TWEETS.USERS+"users")){
+            knownIds.add(user.id_str);
+        }
         
         final TreeMap<String,Integer> userIdCounts = new TreeMap<>();
         IoUtils.readDocument(P.TWEETS.USERS+"topUsersSorted", new LineParser() {
             
             @Override
             protected void parseLine(String line) {
+                if(knownIds.contains(line))
+                    return;
                 String url = API_URL.replace("[id]", line);
                 latch.countUp();
                 crawl(url);

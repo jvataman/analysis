@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class TweetDTO{
     
     //generated values
-    public transient String contentVector;
+    public String contentVector;
     
     public String query; //addition
     

@@ -19,6 +19,7 @@ import aboutlocal.analysis.data.DataCache;
 import aboutlocal.analysis.data.dtos.NewsDTO;
 import aboutlocal.analysis.data.dtos.QuoteDTO;
 import aboutlocal.analysis.data.dtos.TweetDTO;
+import aboutlocal.analysis.data.dtos.UserDTO;
 import aboutlocal.analysis.data.dtos.TweetDTO.HashTag;
 import aboutlocal.analysis.data.dtos.TweetDTO.UrlTag;
 import aboutlocal.analysis.preprocessing.lang.TextPreprocessor;
@@ -51,6 +52,7 @@ public class DataCacheCreator {
         long start = System.currentTimeMillis();
         generateCompanyNameMapping();
         generateNewsMapping();
+        generateUserMapping();
         generateQuoteMapping();
         generateTweetMapping();
         System.out.println("CAHING DONE IN "+(System.currentTimeMillis()-start)/1000+" seconds");
@@ -75,8 +77,20 @@ public class DataCacheCreator {
             e.printStackTrace();
         }
     }
+    
+    public void generateUserMapping(){
+        System.out.println("generating {uId} -> User mapping");
+        IoUtils.readDocument(P.TWEETS.USERS+"users",new LineParser(){
+            @Override
+            protected void parseLine(String line) {
+                UserDTO user = gson.fromJson(line, UserDTO.class);
+                DataCache.instance().userIdToUser.put(user.id_str, user);
+            }
+        });
+        System.out.println("cached users: "+DataCache.instance().userIdToUser.size());
+    }
 
-    private void generateQuoteMapping() {
+    public void generateQuoteMapping() {
         System.out.println("generating {time,CODE} <-> quote mapping");
         ArrayList<File> files = new DTOHandler().findFiles(P.QUOTES.STRUCT, ".*", false);
         final CountIterator inc = IoUtils.newCountIterator("reading quote-files:", 100, 2594);
@@ -112,7 +126,7 @@ public class DataCacheCreator {
         System.out.println("nonIndexed cName -> quote: " + nonIndexed.size());
     }
 
-    private void generateNewsMapping(){
+    public void generateNewsMapping(){
         IoUtils.readDocument(P.NEWS.ROOT+"BloomBergNewsArchive", new NewsParser("BloomBerg"));
         IoUtils.readDocument(P.NEWS.ROOT+"FinancialTimesArchive", new NewsParser("FinancialTimes"));
     }
@@ -135,11 +149,11 @@ public class DataCacheCreator {
         }
     }
     
-    private void generateTweetMapping() {
+    public void generateTweetMapping() {
         System.out.println("generating {time,url,hashtag,contentVector} -> tweet mapping");
         final CountIterator inc = IoUtils.newCountIterator("reading tweets:", 100000, 3300000);
         // XXX max filter
-        final int[] max = { 1000 }, current = { 0 };
+        final int[] max = { 100000 }, current = { 0 };
         final HashSet<String> expandedUrlsDisjunct = new HashSet<>();
         final LinkedList<String> expandedUrls = new LinkedList<>();
         final HashSet<String> hashTagsDisjunct = new HashSet<>();
@@ -156,7 +170,7 @@ public class DataCacheCreator {
                 inc.increment();
 
                 if ((current[0] = current[0] + 1) > max[0])
-                    return;
+                    stopFlag = true;
 
                 TweetDTO tweet = gson.fromJson(line, TweetDTO.class);
                 Long tweetTimeStamp = tweet.created_at_timestamp;
@@ -174,6 +188,10 @@ public class DataCacheCreator {
                 
                 if(code!=null)
                     MapUtils.putIntoListMap(code, tweet, DataCache.instance().companyCodeToTweet);
+                else{
+                    Integer prevNum = DataCache.instance().unrecognizedSearchTerms.get(p.query(tweet.query));
+                    DataCache.instance().unrecognizedSearchTerms.put(p.query(tweet.query),prevNum==null?1:prevNum+1);
+                }
 
                 // String out = "";
                 // if (code == null) {
@@ -232,7 +250,7 @@ public class DataCacheCreator {
 //        System.out.println(IoUtils.toColumnString(DataCache.instance().searchTermToTweet.keySet()));
     }
 
-    private static void printHashTagMappings() {
+    public static void printHashTagMappings() {
         int numMultiMappings = 0;
         System.out.println("hashTag mappings:");
         for (Entry<String, LinkedList<TweetDTO>> entry : DataCache.instance().hashTagToTweet.entrySet())
