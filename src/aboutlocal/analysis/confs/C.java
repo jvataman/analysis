@@ -16,9 +16,9 @@ public class C {
         SURVEILLANCE_END = cal.getTimeInMillis();
     }
 
-    private static final Integer SECOND = 1000, MINUTE = 60 * SECOND, HOUR = 60 * MINUTE, DAY = 24 * HOUR;
+    public static final Integer SECOND = 1000, MINUTE = 60 * SECOND, HOUR = 60 * MINUTE, DAY = 24 * HOUR;
     
-    public static Integer TICK_SIZE_MILLIS = 10 * MINUTE;
+    public static Integer TICK_SIZE_MILLIS = 1 * SECOND;
     public static Integer IMPACT_DELTA_MILLIS = 1 * HOUR;
     
     public static final Long SURVEILLANCE_START;

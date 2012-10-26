@@ -33,6 +33,7 @@ import com.aboutlocal.hypercube.io.fs.CsvEncoder;
 import com.aboutlocal.hypercube.io.fs.DTOHandler;
 import com.aboutlocal.hypercube.io.fs.ExcelCsvEncoder;
 import com.aboutlocal.hypercube.util.data.IoUtils;
+import com.aboutlocal.hypercube.util.data.IoUtils.CountIterator;
 import com.google.gson.Gson;
 
 public class FeatureVectorCreator {
@@ -45,15 +46,20 @@ public class FeatureVectorCreator {
     public static void main(String[] args) {
         new DataCacheCreatorPara().fillCache();
         
-        generateTicks();
-        ArrayList<FeatureVectorDTO> vectors = generateFeatureVectors(ticks);
+        Integer[] testDeltas = new Integer[]{C.HOUR*3,C.MINUTE*10,C.MINUTE*30,C.HOUR*1,C.HOUR*6,C.HOUR*12,C.DAY*1,C.DAY*2};
         
-        try {
-            DTOHandler handler = new DTOHandler(P.FEATURE_VECTORS.ROOT+"featurevectors");
-            handler.setEncoder(new ExcelCsvEncoder());
-            handler.serializeListToCsv(vectors);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        for(Integer delta:testDeltas){
+            
+            generateTicks();
+            ArrayList<FeatureVectorDTO> vectors = generateFeatureVectors(ticks);
+            
+            try {
+                DTOHandler handler = new DTOHandler(P.FEATURE_VECTORS.ROOT+"featurevectors_TS"+C.TICK_SIZE_MILLIS/1000+"_ID"+C.IMPACT_DELTA_MILLIS/1000);
+                handler.setEncoder(new ExcelCsvEncoder());
+                handler.serializeListToCsv(vectors);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -148,6 +154,7 @@ public class FeatureVectorCreator {
     }
 
     private static void generateTicks() {
+        ticks.clear();
         int ticksTotal = 0;
         
         System.out.println("unrecognized tweetSearchTerms:");
@@ -161,7 +168,10 @@ public class FeatureVectorCreator {
         
         BufferedWriter allWriter = IoUtils.getBufferedWriter(PATH+"ALL_COMPANIES_COUNTS");
         
+        final CountIterator codeIterator = new CountIterator("companies processed: ", 10, new Long(DataCache.instance().companyCodeToTweet.keySet().size()));
+        
         for(String companyCode:DataCache.instance().companyCodeToTweet.keySet()){
+            codeIterator.increment();
             int ticksForCode = 0;
             HashSet<TweetDTO> tweetsForCode = new HashSet<>();
             HashSet<QuoteDTO> quotesForCode = new HashSet<>();
@@ -178,7 +188,7 @@ public class FeatureVectorCreator {
             System.out.println("merging: t: " + DataCache.instance().timeToTweet.size() + " q: "
                     + DataCache.instance().timeToQuote.size());
             
-            BufferedWriter writer = IoUtils.getBufferedWriter(PATH+companyCode);
+//            BufferedWriter writer = IoUtils.getBufferedWriter(PATH+companyCode);
             for (Tick tick : tickFactory) {
                 
                 tick.companyCode = companyCode;
@@ -202,21 +212,21 @@ public class FeatureVectorCreator {
 //                        XXX
                         ticks.add(tick);
 
-                        try {
-                            writer.write(gson.toJson(tick) + "\n");
-                            allWriter.write(tick + "\n");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            writer.write(gson.toJson(tick) + "\n");
+//                            allWriter.write(tick + "\n");
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
                     }
                 }
             }
-            try {
-                writer.flush();
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                writer.flush();
+//                writer.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
             System.out.println("ticks for this code: "+ticksForCode);
         }
         try {
