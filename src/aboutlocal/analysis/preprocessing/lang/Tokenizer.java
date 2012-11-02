@@ -33,7 +33,9 @@ public class Tokenizer {
     
     public static void main(String[] args) {
         String s = "Peter is jumping over the lazy fox.";
-        s = "Articulate launches Storyline authoring tool, outputs training modules to iPad and HTML 5: Learning professionally";
+//        s = "Articulate launches Storyline authoring tool, outputs training modules to iPad and HTML 5: Learning professionally";
+//        s = "Microsoft Tightens Personal Data Rules";
+        s = "Microsoft enters hardware business, challenges iPad with Surface";
         setClassLogLevel(Tokenizer.class, LogLevel.DEBUG);
         
         new Tokenizer().getContentVector(s);
